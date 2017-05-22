@@ -1,0 +1,13 @@
+Install from Hackage:
+
+    $ cabal install vcs-web-hook-parse
+
+Install from unpacked release tarball or source repo:
+
+    $ cd vcs-web-hook-parse
+    $ cabal install
+
+Just play with it without installing:
+
+    $ cabal build
+    $ cabal repl

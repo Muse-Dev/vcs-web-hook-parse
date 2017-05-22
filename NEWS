@@ -1,0 +1,47 @@
+This file lists the user-visible interesting changes between releases. For a
+full list of changes to the source, see the ChangeLog.
+
+
+
+vcs-web-hook-parse 0.2.0.0 -- 2016-01-27
+========================================
+
+General, build and documentation changes:
+
+* (None)
+
+New APIs, features and enhancements:
+
+* Add added/modified/removed file list fields to Commit for Gitlab
+* Support for Gitlab note events
+
+Bug fixes:
+
+* (None)
+
+Dependency changes:
+
+* (None)
+
+
+
+
+
+vcs-web-hook-parse 0.1.0.0 -- 2015-08-10
+========================================
+
+General, build and documentation changes:
+
+* (This is the first release, so everything is new)
+
+New APIs, features and enhancements:
+
+* (This is the first release, so everything is a new feature)
+
+Bug fixes:
+
+* (This is just the first release)
+
+Dependency changes:
+
+* (This is the first release)
