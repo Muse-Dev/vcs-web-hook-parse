@@ -64,6 +64,7 @@ data Author = Author
     { authorName  :: T.Text
     , authorEmail :: T.Text
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON Author where
     parseJSON (Object o) =
@@ -77,6 +78,7 @@ data User = User
     , userUsername :: T.Text
     , userAvatar   :: Url
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON User where
     parseJSON (Object o) =
@@ -96,6 +98,7 @@ data Commit = Commit
     , commitModified  :: [File]
     , commitRemoved   :: [File]
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON Commit where
     parseJSON (Object o) =
@@ -118,6 +121,7 @@ data MergeEndpoint = MergeEndpoint
     , mepVisibility :: Int
     , mepNamespace  :: T.Text
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON MergeEndpoint where
     parseJSON (Object o) =
@@ -139,6 +143,7 @@ data Repository = Repository
     , repoGitSshUrl  :: Maybe Url
     , repoVisibility :: Maybe Int
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON Repository where
     parseJSON (Object o) =
@@ -151,6 +156,37 @@ instance FromJSON Repository where
         o .:? "git_ssh_url" <*>
         o .:? "visibility_level"
     parseJSON v          = typeMismatch "Repository" v
+
+data Project = Project
+    { projName              :: T.Text
+    , projDesc              :: T.Text
+    , projAvatarUrl         :: Maybe Url
+    , projNamespace         :: T.Text
+    , projVisibility        :: Int
+    , projPathWithNamespace :: T.Text
+    , projDefaultBranch     :: Maybe T.Text
+    , projHomepage          :: Url
+    , projWebUrl            :: Url
+    , projGitHttpUrl        :: Url
+    , projGitSshUrl         :: Url
+    }
+    deriving (Eq,Ord,Show)
+
+instance FromJSON Project where
+    parseJSON (Object o) =
+        Project <$>
+            o .:  "name" <*>
+            o .:  "descrption" <*>
+            o .:? "avatar_url" <*>
+            o .:  "namespace" <*>
+            o .:  "visibility_level" <*>
+            o .:  "path_with_namespace" <*>
+            o .:? "default_branch" <*>
+            o .:  "homepage" <*>
+            o .:  "web_url" <*>
+            o .:  "git_http_url" <*>
+            o .:  "git_ssh_url"
+    parseJSON v = typeMismatch "Project" v
 
 data Issue = Issue
     { issueInternalId  :: Int
@@ -168,6 +204,7 @@ data Issue = Issue
     , issueId          :: Int
     , issueUrl         :: Url
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON Issue where
     parseJSON (Object o) =
@@ -212,6 +249,7 @@ data MergeRequest = MergeRequest
     , mrWorkInProgress  :: Bool
     , mrUrl             :: Url
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON MergeRequest where
     parseJSON (Object o) =
@@ -250,6 +288,7 @@ data Diff = Diff
     , diffRenamedFile :: Bool
     , diffDeletedFile :: Bool
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON Diff where
     parseJSON (Object o) =
@@ -280,6 +319,7 @@ data Note = Note
     , noteStDiff     :: Maybe Diff
     , noteUrl        :: Url
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON Note where
     parseJSON (Object o) =
@@ -303,6 +343,7 @@ instance FromJSON Note where
 data Push = Push
     { pushBefore       :: CommitID
     , pushAfter        :: CommitID
+    , pushProject      :: Project
     , pushRef          :: T.Text
     , pushUserId       :: Int
     , pushUserName     :: T.Text
@@ -312,12 +353,14 @@ data Push = Push
     , pushCommits      :: [Commit]
     , pushCommitsTotal :: Int
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON Push where
     parseJSON (Object v) =
         Push <$>
         v .: "before" <*>
         v .: "after" <*>
+        v .: "project" <*>
         v .: "ref" <*>
         v .: "user_id" <*>
         v .: "user_name" <*>
@@ -329,20 +372,23 @@ instance FromJSON Push where
     parseJSON _          = mzero
 
 data IssueEvent = IssueEvent
-    { ieUser   :: User
-    , ieRepo   :: Repository
-    , ieIssue  :: Issue
-    , ieAction :: T.Text
+    { ieUser    :: User
+    , ieRepo    :: Repository
+    , ieProject :: Project
+    , ieIssue   :: Issue
+    , ieAction  :: T.Text
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON IssueEvent where
     parseJSON (Object o) = do
         user <- o .: "user"
         repo <- o .: "repository"
+        proj <- o .: "project"
         attrs <- o .: "object_attributes"
         issue <- o .: "object_attributes"
         action <- attrs .: "action"
-        return $ IssueEvent user repo issue action
+        return $ IssueEvent user repo proj issue action
     parseJSON v          = typeMismatch "IssueEvent" v
 
 data MergeRequestEvent = MergeRequestEvent
@@ -350,6 +396,7 @@ data MergeRequestEvent = MergeRequestEvent
     , mreRequest :: MergeRequest
     , mreAction  :: T.Text
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON MergeRequestEvent where
     parseJSON (Object o) = do
@@ -373,6 +420,7 @@ data Snippet = Snippet
     , snippetType       :: T.Text
     , snippetVisibility :: Int
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON Snippet where
     parseJSON (Object o) =
@@ -395,20 +443,24 @@ data NoteTarget
     | NTIssue Issue
     | NTMergeRequest MergeRequest
     | NTSnippet Snippet
+    deriving (Eq,Ord,Show)
 
 data NoteEvent = NoteEvent
     { neUser      :: User
     , neProjectId :: Int
+    , neProject   :: Project
     , neRepo      :: Repository
     , neNote      :: Note
     , neTarget    :: NoteTarget
     }
+    deriving (Eq,Ord,Show)
 
 instance FromJSON NoteEvent where
     parseJSON (Object o) =
         NoteEvent <$>
         o .: "user" <*>
         o .: "project_id" <*>
+        o .: "project" <*>
         o .: "repository" <*>
         o .: "object_attributes" <*>
         ( NTCommit       <$> o .: "commit"        <|>
@@ -424,6 +476,7 @@ data Event
     | EventIssue IssueEvent
     | EventMergeRequest MergeRequestEvent
     | EventNote NoteEvent
+    deriving (Eq,Ord,Show)
 
 instance FromJSON Event where
     parseJSON v@(Object o) =
