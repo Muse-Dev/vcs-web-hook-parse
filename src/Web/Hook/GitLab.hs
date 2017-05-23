@@ -35,6 +35,7 @@ module Web.Hook.GitLab
     , MergeRequestEvent (..)
     , NoteEvent (..)
     , Event (..)
+    , Project (..)
     , parse
     )
 where
