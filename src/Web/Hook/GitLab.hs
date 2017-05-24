@@ -177,7 +177,7 @@ instance FromJSON Project where
     parseJSON (Object o) =
         Project <$>
             o .:  "name" <*>
-            o .:  "descrption" <*>
+            o .:  "description" <*>
             o .:? "avatar_url" <*>
             o .:  "namespace" <*>
             o .:  "visibility_level" <*>
