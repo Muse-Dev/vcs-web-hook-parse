@@ -192,7 +192,7 @@ instance FromJSON Project where
 data Issue = Issue
     { issueInternalId  :: Int
     , issueTitle       :: T.Text
-    , issueAssigneeId  :: Int
+    , issueAssigneeId  :: Maybe Int
     , issueAuthorId    :: Int
     , issueProjectId   :: Int
     , issueCreatedAt   :: T.Text
@@ -212,7 +212,7 @@ instance FromJSON Issue where
         Issue <$>
         o .: "id" <*>
         o .: "title" <*>
-        o .: "assignee_id" <*>
+        o .:? "assignee_id" <*>
         o .: "author_id" <*>
         o .: "project_id" <*>
         o .: "created_at" <*>
@@ -260,7 +260,7 @@ instance FromJSON MergeRequest where
         o .: "source_branch" <*>
         o .: "source_project_id" <*>
         o .: "author_id" <*>
-        o .: "assignee_id" <*>
+        o .:? "assignee_id" <*>
         o .: "title" <*>
         o .: "created_at" <*>
         o .: "updated_at" <*>
