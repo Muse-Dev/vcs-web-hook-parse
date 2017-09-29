@@ -128,8 +128,8 @@ instance FromJSON MergeEndpoint where
     parseJSON (Object o) =
         MergeEndpoint <$>
         o .: "name" <*>
-        o .: "ssh_url" <*>
-        o .: "http_url" <*>
+        o .: "git_ssh_url" <*>
+        o .: "git_http_url" <*>
         o .: "web_url" <*>
         o .: "visibility_level" <*>
         o .: "namespace"
@@ -197,7 +197,6 @@ data Issue = Issue
     , issueProjectId   :: Int
     , issueCreatedAt   :: T.Text
     , issueUpdatedAt   :: T.Text
-    , issuePosition    :: Int
     , issueBranch      :: Maybe T.Text
     , issueDescription :: T.Text
     , issueMilestoneId :: Maybe Int
@@ -217,7 +216,6 @@ instance FromJSON Issue where
         o .: "project_id" <*>
         o .: "created_at" <*>
         o .: "updated_at" <*>
-        o .: "position" <*>
         o .: "branch_name" <*>
         o .: "description" <*>
         o .: "milestone_id" <*>
@@ -367,7 +365,7 @@ instance FromJSON Push where
         v .: "user_name" <*>
         v .: "user_email" <*>
         v .: "project_id" <*>
-        v .: "repository" <*>
+        v .: "project" <*>
         v .: "commits" <*>
         v .: "total_commits_count"
     parseJSON _          = mzero
@@ -462,7 +460,7 @@ instance FromJSON NoteEvent where
         o .: "user" <*>
         o .: "project_id" <*>
         o .: "project" <*>
-        o .: "repository" <*>
+        o .: "project" <*>
         o .: "object_attributes" <*>
         ( NTCommit       <$> o .: "commit"        <|>
           NTMergeRequest <$> o .: "merge_request" <|>
