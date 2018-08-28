@@ -128,8 +128,8 @@ instance FromJSON MergeEndpoint where
     parseJSON (Object o) =
         MergeEndpoint <$>
         o .: "name" <*>
-        o .: "ssh_url" <*>
-        o .: "http_url" <*>
+        o .: "git_ssh_url" <*>
+        o .: "git_http_url" <*>
         o .: "web_url" <*>
         o .: "visibility_level" <*>
         o .: "namespace"
@@ -395,17 +395,14 @@ instance FromJSON IssueEvent where
 data MergeRequestEvent = MergeRequestEvent
     { mreUser    :: User
     , mreRequest :: MergeRequest
-    , mreAction  :: T.Text
     }
     deriving (Eq,Ord,Show)
 
 instance FromJSON MergeRequestEvent where
     parseJSON (Object o) = do
         user <- o .: "user"
-        attrs <- o .: "object_attributes"
         mr <- o .: "object_attributes"
-        action <- attrs .: "action"
-        return $ MergeRequestEvent user mr action
+        return $ MergeRequestEvent user mr
     parseJSON v          = typeMismatch "MergeRequestEvent" v
 
 data Snippet = Snippet
