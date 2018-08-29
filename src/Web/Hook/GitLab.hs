@@ -392,15 +392,17 @@ instance FromJSON IssueEvent where
 
 data MergeRequestEvent = MergeRequestEvent
     { mreUser    :: User
+    , mreAction  :: Maybe T.Text
     , mreRequest :: MergeRequest
     }
     deriving (Eq,Ord,Show)
 
 instance FromJSON MergeRequestEvent where
     parseJSON (Object o) = do
-        user <- o .: "user"
-        mr <- o .: "object_attributes"
-        return $ MergeRequestEvent user mr
+        user <- o  .:  "user"
+        mr   <- o  .:  "object_attributes"
+        act  <- (o .: "object_attributes") >>= (.:? "action")
+        return $ MergeRequestEvent user act mr
     parseJSON v          = typeMismatch "MergeRequestEvent" v
 
 data Snippet = Snippet
