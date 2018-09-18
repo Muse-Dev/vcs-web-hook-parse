@@ -14,6 +14,7 @@
  -}
 
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Web.Hook.GitLab
     ( CommitID
@@ -47,6 +48,7 @@ import Data.Aeson.Types (Parser, typeMismatch)
 
 import qualified Data.ByteString.Lazy as B
 import qualified Data.Text as T
+import GHC.Generics
 
 type CommitID = T.Text
 
@@ -65,7 +67,7 @@ data Author = Author
     { authorName  :: T.Text
     , authorEmail :: T.Text
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON Author where
     parseJSON (Object o) =
@@ -79,7 +81,7 @@ data User = User
     , userUsername :: T.Text
     , userAvatar   :: Url
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON User where
     parseJSON (Object o) =
@@ -99,7 +101,7 @@ data Commit = Commit
     , commitModified  :: [File]
     , commitRemoved   :: [File]
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON Commit where
     parseJSON (Object o) =
@@ -122,7 +124,7 @@ data MergeEndpoint = MergeEndpoint
     , mepVisibility :: Int
     , mepNamespace  :: T.Text
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON MergeEndpoint where
     parseJSON (Object o) =
@@ -144,7 +146,7 @@ data Repository = Repository
     , repoGitSshUrl  :: Maybe Url
     , repoVisibility :: Maybe Int
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON Repository where
     parseJSON (Object o) =
@@ -171,7 +173,7 @@ data Project = Project
     , projGitHttpUrl        :: Url
     , projGitSshUrl         :: Url
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON Project where
     parseJSON (Object o) =
@@ -204,7 +206,7 @@ data Issue = Issue
     , issueId          :: Int
     , issueUrl         :: Url
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON Issue where
     parseJSON (Object o) =
@@ -248,7 +250,7 @@ data MergeRequest = MergeRequest
     , mrWorkInProgress  :: Bool
     , mrUrl             :: Url
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON MergeRequest where
     parseJSON (Object o) =
@@ -287,7 +289,7 @@ data Diff = Diff
     , diffRenamedFile :: Bool
     , diffDeletedFile :: Bool
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON Diff where
     parseJSON (Object o) =
@@ -318,7 +320,7 @@ data Note = Note
     , noteStDiff     :: Maybe Diff
     , noteUrl        :: Url
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON Note where
     parseJSON (Object o) =
@@ -352,7 +354,7 @@ data Push = Push
     , pushCommits      :: [Commit]
     , pushCommitsTotal :: Int
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON Push where
     parseJSON (Object v) =
@@ -377,7 +379,7 @@ data IssueEvent = IssueEvent
     , ieIssue   :: Issue
     , ieAction  :: T.Text
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON IssueEvent where
     parseJSON (Object o) = do
@@ -395,7 +397,7 @@ data MergeRequestEvent = MergeRequestEvent
     , mreAction  :: Maybe T.Text
     , mreRequest :: MergeRequest
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON MergeRequestEvent where
     parseJSON (Object o) = do
@@ -418,7 +420,7 @@ data Snippet = Snippet
     , snippetType       :: T.Text
     , snippetVisibility :: Int
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON Snippet where
     parseJSON (Object o) =
@@ -441,7 +443,7 @@ data NoteTarget
     | NTIssue Issue
     | NTMergeRequest MergeRequest
     | NTSnippet Snippet
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 data NoteEvent = NoteEvent
     { neUser      :: User
@@ -451,7 +453,7 @@ data NoteEvent = NoteEvent
     , neNote      :: Note
     , neTarget    :: NoteTarget
     }
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON NoteEvent where
     parseJSON (Object o) =
@@ -474,7 +476,7 @@ data Event
     | EventIssue IssueEvent
     | EventMergeRequest MergeRequestEvent
     | EventNote NoteEvent
-    deriving (Eq,Ord,Show)
+    deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON Event where
     parseJSON v@(Object o) =
