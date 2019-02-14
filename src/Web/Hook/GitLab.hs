@@ -140,7 +140,7 @@ instance FromJSON MergeEndpoint where
 data Repository = Repository
     { repoName       :: T.Text
     , repoUrl        :: Url
-    , repoDesc       :: T.Text
+    , repoDesc       :: Maybe T.Text
     , repoHomepage   :: Url
     , repoGitHttpUrl :: Maybe Url
     , repoGitSshUrl  :: Maybe Url
@@ -153,7 +153,7 @@ instance FromJSON Repository where
         Repository <$>
         o .:  "name" <*>
         o .:  "url" <*>
-        o .:  "description" <*>
+        o .:?  "description" <*>
         o .:  "homepage" <*>
         o .:? "git_http_url" <*>
         o .:? "git_ssh_url" <*>
@@ -243,7 +243,7 @@ data MergeRequest = MergeRequest
     , mrMergeStatus     :: T.Text
     , mrTargetProjectId :: Int
     , mrId              :: Int
-    , mrDescription     :: T.Text
+    , mrDescription     :: Maybe T.Text
     , mrSource          :: MergeEndpoint
     , mrTarget          :: MergeEndpoint
     , mrLastCommit      :: Commit
@@ -271,7 +271,7 @@ instance FromJSON MergeRequest where
         o .: "merge_status" <*>
         o .: "target_project_id" <*>
         o .: "iid" <*>
-        o .: "description" <*>
+        o .:? "description" <*>
         o .: "source" <*>
         o .: "target" <*>
         o .: "last_commit" <*>
