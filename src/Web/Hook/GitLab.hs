@@ -30,10 +30,12 @@ module Web.Hook.GitLab
     , NoteTarget (..)
     , Issue (..)
     , MergeRequest (..)
+    , MergeRequestAuthor (..)
     , Note (..)
     , Push (..)
     , IssueEvent (..)
     , MergeRequestEvent (..)
+    , MergeRequestEventAttributes (..)
     , NoteEvent (..)
     , Event (..)
     , Project (..)
@@ -226,6 +228,25 @@ instance FromJSON Issue where
         o .:? "url" .!= T.empty
     parseJSON v          = typeMismatch "Issue" v
 
+data MergeRequestAuthor = MergeRequestAuthor
+    { mraId        :: Int
+    , mraName      :: T.Text
+    , mraUsername  :: T.Text
+    , mraState     :: T.Text
+    , mraAvatarUrl :: Maybe Url
+    , mraWebUrl    :: Url
+    }
+    deriving (Eq,Ord,Show,Generic)
+
+instance FromJSON MergeRequestAuthor where
+    parseJSON = withObject "MergeRequestAuthor" $ \o ->
+        MergeRequestAuthor <$> o .: "id"
+                           <*> o .: "name"
+                           <*> o .: "username"
+                           <*> o .: "state"
+                           <*> o .: "avatar_url"
+                           <*> o .: "web_url"
+
 data MergeRequest = MergeRequest
     { mrInternalId      :: Int
     , mrTargetBranch    :: T.Text
@@ -236,6 +257,7 @@ data MergeRequest = MergeRequest
     , mrTitle           :: T.Text
     , mrCreatedAt       :: T.Text
     , mrUpdatedAt       :: T.Text
+    , mrAuthor          :: MergeRequestAuthor
     --, mrStCommits       :: [Int] -- dummy type; what is this?
     --, mrStDiffs         :: [Int] -- dummy type; what is this?
     , mrMilestoneId     :: Maybe Int
@@ -246,15 +268,72 @@ data MergeRequest = MergeRequest
     , mrDescription     :: Maybe T.Text
     , mrSource          :: Maybe MergeEndpoint
     , mrTarget          :: Maybe MergeEndpoint
-    , mrLastCommit      :: Commit
+    , mrBaseSha         :: T.Text
+    , mrHeadSha         :: T.Text
+    , mrStartSha        :: T.Text
     , mrWorkInProgress  :: Bool
     , mrUrl             :: Url
     }
     deriving (Eq,Ord,Show,Generic)
 
 instance FromJSON MergeRequest where
-    parseJSON (Object o) =
+    parseJSON  = withObject "MergeRequest" $ \o ->
         MergeRequest <$>
+        o .: "id" <*>
+        o .: "target_branch" <*>
+        o .: "source_branch" <*>
+        o .: "source_project_id" <*>
+        ((o .: "author" >>= (.: "id")) <|> o .: "author_id") <*>
+        o .:? "assignee_id" <*>
+        o .: "title" <*>
+        o .: "created_at" <*>
+        o .: "updated_at" <*>
+        o .: "author" <*>
+        --v .: "st_commits" <*>
+        --v .: "st_diffs" <*>
+        o .: "milestone_id" <*>
+        o .: "state" <*>
+        o .: "merge_status" <*>
+        o .: "target_project_id" <*>
+        o .: "iid" <*>
+        o .:? "description" <*>
+        o .:? "source" <*>
+        o .:? "target" <*>
+        (o .: "diff_refs" >>= (.: "base_sha")) <*>
+        (o .: "diff_refs" >>= (.: "head_sha")) <*>
+        (o .: "diff_refs" >>= (.: "start_sha")) <*>
+        o .: "work_in_progress" <*>
+        o .:? "url" .!= T.empty
+
+data MergeRequestEventAttributes = MergeRequestEventAttributes
+    { mreaInternalId      :: Int
+    , mreaTargetBranch    :: T.Text
+    , mreaSourceBranch    :: T.Text
+    , mreaSourceProjectId :: Int
+    , mreaAuthorId        :: Int
+    , mreaAssigneeId      :: Maybe Int
+    , mreaTitle           :: T.Text
+    , mreaCreatedAt       :: T.Text
+    , mreaUpdatedAt       :: T.Text
+    --, mrStCommits       :: [Int] -- dummy type; what is this?
+    --, mrStDiffs         :: [Int] -- dummy type; what is this?
+    , mreaMilestoneId     :: Maybe Int
+    , mreaState           :: T.Text
+    , mreaMergeStatus     :: T.Text
+    , mreaTargetProjectId :: Int
+    , mreaId              :: Int
+    , mreaDescription     :: Maybe T.Text
+    , mreaSource          :: Maybe MergeEndpoint
+    , mreaTarget          :: Maybe MergeEndpoint
+    , mreaLastCommit      :: Commit
+    , mreaWorkInProgress  :: Bool
+    , mreaUrl             :: Url
+    }
+    deriving (Eq,Ord,Show,Generic)
+
+instance FromJSON MergeRequestEventAttributes where
+    parseJSON (Object o) =
+        MergeRequestEventAttributes <$>
         o .: "id" <*>
         o .: "target_branch" <*>
         o .: "source_branch" <*>
@@ -277,7 +356,7 @@ instance FromJSON MergeRequest where
         (o .: "last_commit" <|> (o .: "diff_refs" >>= (.: "head_sha"))) <*>
         o .: "work_in_progress" <*>
         o .:? "url" .!= T.empty
-    parseJSON v          = typeMismatch "MergeRequest" v
+    parseJSON v          = typeMismatch "MergeRequestEventAttributes" v
 
 data Diff = Diff
     { diffDiff        :: T.Text
@@ -395,7 +474,7 @@ instance FromJSON IssueEvent where
 data MergeRequestEvent = MergeRequestEvent
     { mreUser    :: User
     , mreAction  :: Maybe T.Text
-    , mreRequest :: MergeRequest
+    , mreRequest :: MergeRequestEventAttributes
     }
     deriving (Eq,Ord,Show,Generic)
 
