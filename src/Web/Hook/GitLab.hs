@@ -244,8 +244,8 @@ data MergeRequest = MergeRequest
     , mrTargetProjectId :: Int
     , mrId              :: Int
     , mrDescription     :: Maybe T.Text
-    , mrSource          :: MergeEndpoint
-    , mrTarget          :: MergeEndpoint
+    , mrSource          :: Maybe MergeEndpoint
+    , mrTarget          :: Maybe MergeEndpoint
     , mrLastCommit      :: Commit
     , mrWorkInProgress  :: Bool
     , mrUrl             :: Url
@@ -259,7 +259,7 @@ instance FromJSON MergeRequest where
         o .: "target_branch" <*>
         o .: "source_branch" <*>
         o .: "source_project_id" <*>
-        o .: "author_id" <*>
+        ((o .: "author" >>= (.: "id")) <|> o .: "author_id") <*>
         o .:? "assignee_id" <*>
         o .: "title" <*>
         o .: "created_at" <*>
@@ -272,9 +272,9 @@ instance FromJSON MergeRequest where
         o .: "target_project_id" <*>
         o .: "iid" <*>
         o .:? "description" <*>
-        o .: "source" <*>
-        o .: "target" <*>
-        o .: "last_commit" <*>
+        o .:? "source" <*>
+        o .:? "target" <*>
+        (o .: "last_commit" <|> (o .: "diff_refs" >>= (.: "head_sha"))) <*>
         o .: "work_in_progress" <*>
         o .:? "url" .!= T.empty
     parseJSON v          = typeMismatch "MergeRequest" v
