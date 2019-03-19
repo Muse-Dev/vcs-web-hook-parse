@@ -260,7 +260,6 @@ data MergeRequest = MergeRequest
     , mrAuthor          :: MergeRequestAuthor
     --, mrStCommits       :: [Int] -- dummy type; what is this?
     --, mrStDiffs         :: [Int] -- dummy type; what is this?
-    , mrMilestoneId     :: Maybe Int
     , mrState           :: T.Text
     , mrMergeStatus     :: T.Text
     , mrTargetProjectId :: Int
@@ -291,7 +290,6 @@ instance FromJSON MergeRequest where
         o .: "author" <*>
         --v .: "st_commits" <*>
         --v .: "st_diffs" <*>
-        o .: "milestone_id" <*>
         o .: "state" <*>
         o .: "merge_status" <*>
         o .: "target_project_id" <*>
