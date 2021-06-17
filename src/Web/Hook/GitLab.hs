@@ -81,7 +81,7 @@ instance FromJSON Author where
 data User = User
     { userName     :: T.Text
     , userUsername :: T.Text
-    , userAvatar   :: Url
+    , userAvatar   :: Maybe Url
     }
     deriving (Eq,Ord,Show,Generic)
 
@@ -90,7 +90,7 @@ instance FromJSON User where
         User <$>
         o .: "name" <*>
         o .: "username" <*>
-        o .: "avatar_url"
+        o .:? "avatar_url"
     parseJSON v          = typeMismatch "User" v
 
 data Commit = Commit
